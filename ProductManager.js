@@ -11,23 +11,21 @@ class ProductManager{
         this.Product=''
     }
 
-    async getProducts(){
+    getProducts(){
         let listaProducto=[]
         try{
-           await fs.promises.readFile(this.path, 'utf-8').then((respuesta)=>{console.log(respuesta)
-            listaProducto=respuesta}
-           )
-           
+            listaProducto = JSON.parse(fs.readFileSync(this.path, 'utf-8'))
+            console.log(listaProducto)
         }
         catch(err){
             console.log("No existe el archivo")
         }
-        .then(return listaProducto)
+        return listaProducto
+        
     }
 
 
-
-    async addProduct(title, description, price, thumbnail, code, stock){
+    addProduct(title, description, price, thumbnail, code, stock){
         //incremento en 1 el valor de ID
         ProductManager.id+=1
         //creo un objeto nuevo con atributos nuevos
@@ -39,12 +37,19 @@ class ProductManager{
         //corroboro que no haya ningun valor undefined dentro de ese array
         let elementoUnd=valores.includes(undefined)
         // con map genero un array de los code y veo si existe el mismo valor
-        let listaProduct = this.getProducts
-        console.log(listaProduct)
-        let ListaCode=listaProduct.map(elemento=>elemento.code)
+        const listaProduct = ()=>{
+            let listaProducto=[]
+            try{
+                listaProducto = JSON.parse(fs.readFileSync(this.path, 'utf-8'))
+            }
+            catch(err){
+                console.log("No existe el archivo, sera creado")
+            }
+            return listaProducto
+        }
+
+        let ListaCode=listaProduct().map(elemento=>elemento.code)
         let mismoCode=ListaCode.includes(producto1.code)
-
-
 
         if (elementoVacio || elementoUnd){
             console.log("existen atributos sin un valor definido")
@@ -53,16 +58,26 @@ class ProductManager{
             console.log("El valor elegido para code ya existe, elija otro")
         }
         else{
-            await fs.promises.writeFile(this.path,[...listaProduct, producto1])
+            fs.writeFileSync(this.path,JSON.stringify([...listaProduct(), producto1]))
         }
 
     }
 
-
     
-
     getProductById(id){
-        const productoBuscado=productManager.products.find(element=>element.id==id)
+
+        const listaProduct = ()=>{
+            let listaProducto=[]
+            try{
+                listaProducto = JSON.parse(fs.readFileSync(this.path, 'utf-8'))
+            }
+            catch(err){
+                console.log("No existe el archivo, sera creado")
+            }
+            return listaProducto
+        }
+
+        const productoBuscado=listaProduct().find(element=>element.id==id)
         if(productoBuscado!=undefined){
             return (productoBuscado)
         }
@@ -73,7 +88,7 @@ class ProductManager{
 }
 
 
-let producto = new ProductManager("./productos.JSON")
+let producto = new ProductManager("./productos.txt")
 
-console.log(producto.getProducts())
-//producto.addProduct('a','a','a','a',1,1)
+producto.getProducts()
+//producto.addProduct('a','a','a','a',2,1)
